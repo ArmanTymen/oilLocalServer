@@ -6,7 +6,8 @@ import {
   drillingWellsData, 
   IWellBlueprint, 
   IDrillingWell, 
-  IDrillingHistoryPoint 
+  IDrillingHistoryPoint, 
+  IDrillingDelta
 } from './datas1';
 
 const app = express();
@@ -128,12 +129,11 @@ setInterval(() => {
    DRILLING UPDATE LOOP
 ===================================================== */
 
-function processDrillingStep(wells: IWellBlueprint[]): IDrillingWell[] {
-  const updates: IDrillingWell[] = [];
+function processDrillingStep(wells: IWellBlueprint[]): IDrillingDelta[] {
+  const updates: IDrillingDelta[] = [];
   const now = new Date().toISOString();
 
   wells.forEach(well => {
-
     if (well.status === 'бурение' && well.currentDepth < well.targetDepth) {
 
       const step = 0.1 + Math.random() * 0.2;
@@ -161,16 +161,23 @@ function processDrillingStep(wells: IWellBlueprint[]): IDrillingWell[] {
         gasContent: well.gasContent + (Math.random() * 0.05)
       };
 
+      // Сервер по-прежнему хранит историю у себя
       well.history.push(newPoint);
-
       if (well.history.length > HISTORY_POINTS_COUNT) {
-        well.history.shift();
+        well.history.shift(); 
       }
 
-      const { driftX, driftZ, ...clientWell } = well;
-      updates.push(clientWell as IDrillingWell);
+      // На клиент уходит ТОЛЬКО измененная дельта
+      updates.push({
+        id: well.id,
+        currentDepth: well.currentDepth,
+        bottomHoleCoord: { ...well.bottomHoleCoord },
+        rop: well.rop,
+        pumpPressure: well.pumpPressure,
+        torque: well.torque,
+        newHistoryPoint: newPoint
+      });
     }
-
   });
 
   return updates;

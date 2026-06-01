@@ -39,6 +39,16 @@ export interface IDrillingWell {
   history: IDrillingHistoryPoint[]; 
 }
 
+export interface IDrillingDelta {
+  id: IDrillingWell['id'];
+  currentDepth: number;
+  bottomHoleCoord: { x: number; y: number; z: number };
+  rop: number;
+  pumpPressure: number;
+  torque: number;
+  newHistoryPoint: IDrillingHistoryPoint;
+}
+
 export interface IWellBlueprint extends IDrillingWell {
   driftX: number;
   driftZ: number;
