@@ -145,7 +145,7 @@ export const drillingWellsData: IWellBlueprint[] = [
   },
   {
     id: 2008, wellName: "Скв. 2008 (Промывка)", status: 'промывка',
-    currentDepth: 2900, targetDepth: 2300, bottomHoleCoord: { x: 15, y: -2900, z: -10 },
+    currentDepth: 1200, targetDepth: 2300, bottomHoleCoord: { x: 15, y: -2900, z: -10 },
     driftX: 0.02, driftZ: -0.01, hookLoad: 140, weightOnBit: 5, rpm: 20, torque: 5, rop: 0,
     pumpPressure: 180, flowIn: 45, flowOut: 45, gasContent: 1.1, currentLayer: 'глина', limits: { ...defaultLimits }, history: []
   },

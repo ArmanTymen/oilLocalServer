@@ -1,14 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import { Server } from 'socket.io';
-import { IFieldData, initialData } from './datas'; 
+import { IFieldData, initialData } from './data/production.data'; 
 import { 
   drillingWellsData, 
   IWellBlueprint, 
   IDrillingWell, 
   IDrillingHistoryPoint, 
   IDrillingDelta
-} from './datas1';
+} from './data/drilling.data';
 
 const app = express();
 const PORT = 3001;
@@ -161,13 +161,11 @@ function processDrillingStep(wells: IWellBlueprint[]): IDrillingDelta[] {
         gasContent: well.gasContent + (Math.random() * 0.05)
       };
 
-      // Сервер по-прежнему хранит историю у себя
       well.history.push(newPoint);
       if (well.history.length > HISTORY_POINTS_COUNT) {
         well.history.shift(); 
       }
 
-      // На клиент уходит ТОЛЬКО измененная дельта
       updates.push({
         id: well.id,
         currentDepth: well.currentDepth,
