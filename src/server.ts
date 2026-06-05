@@ -18,30 +18,44 @@ let fields: IFieldData[] = initialData;
 const HISTORY_POINTS_COUNT = 2000;
 
 /* =====================================================
-   HISTORY GENERATION
+   UPDATED HISTORY GENERATION WITH CHRONOLOGY & NOISE
 ===================================================== */
 
 const generateInitialHistory = (well: IWellBlueprint): IDrillingHistoryPoint[] => {
   const history: IDrillingHistoryPoint[] = [];
   const step = 2;
+  
+  const totalPoints = Math.floor(well.currentDepth / step) + 1;
+  const nowMs = Date.now();
+  const TIME_STEP_MS = 3000;
 
+  let index = 0;
   for (let depth = 0; depth <= well.currentDepth; depth += step) {
+    const timeOffset = (totalPoints - index) * TIME_STEP_MS;
+    const pointTimestamp = new Date(nowMs - timeOffset).toISOString();
+
+    const isDrilling = well.status === 'бурение';
+    const pressureNoise = isDrilling ? (Math.random() - 0.5) * 12 : (Math.random() - 0.5) * 2;
+    const gasNoise = isDrilling ? Math.random() * 0.4 : 0.01;
+
     history.push({
-      timestamp: new Date().toISOString(),
+      timestamp: pointTimestamp,
       depth: Number(depth.toFixed(2)),
-      rop: 0,
-      hookLoad: well.hookLoad,
-      weightOnBit: well.weightOnBit,
+      rop: isDrilling ? Math.round(15 + Math.random() * 10) : 0,
+      hookLoad: Number((well.hookLoad + (Math.random() - 0.5) * 4).toFixed(1)),
+      weightOnBit: isDrilling ? Number((well.weightOnBit + (Math.random() - 0.5) * 2).toFixed(1)) : 0,
       rpm: well.rpm,
-      torque: well.torque,
-      pumpPressure: well.pumpPressure,
+      torque: isDrilling ? Math.round(well.torque + (Math.random() - 0.5) * 3) : 0,
+      pumpPressure: well.pumpPressure > 0 ? Math.round(well.pumpPressure + pressureNoise) : 0,
       flowIn: well.flowIn,
-      flowOut: well.flowOut,
-      gasContent: well.gasContent
+      flowOut: well.flowOut > 0 ? Number((well.flowIn - 0.5 + Math.random() * 0.3).toFixed(1)) : 0,
+      gasContent: Number((well.gasContent + gasNoise).toFixed(2))
     });
+
+    index++;
   }
 
-  return history;
+  return history.slice(-200);
 };
 
 /* =====================================================
